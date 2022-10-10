@@ -24,6 +24,25 @@
       </tr>
     </thead>
     <tbody id="shuttle">
+      <form name="signupForm">
+        <tr>
+          <th scope="row">
+            <input id="newShuttleName" class="form-control mb-2" name="Name" placeholder="Name" type="text" required />
+          </th>
+          <th scope="row">
+            <input id="newShuttleVelocity" class="form-control mb-2" name="Name" placeholder="Velocity" type="number" required />
+          </th>
+          <th scope="row">
+            <select id="newShuttleIsActive" class="form-select mb-2" name="opcion">
+              <option value="true" selected>True</option>
+              <option value="false">False</option>
+            </select>
+          </th>
+          <td>
+            <button id="addShuttle" class="btn btn-primary" type="submit" onclick="signup(); return false;">Add</button>
+          </td>
+        </tr>
+      </form>
     </tbody>
   </table>
 
