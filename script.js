@@ -51,6 +51,7 @@ function printInfo() {
           <th scope="row">${vehicle.name}</th>
           <td>${vehicle.velocity}</td>
           <td>${vehicle.isActive}</td>
+          <td><button class="btn btn-danger" onclick="deleteShuttle(${vehicle.id})">Del</button></td>
         </tr>
         `;
     });
@@ -83,8 +84,23 @@ function postShuttle() {
             <th scope="row">${data.name}</th>
             <td>${data.velocity}</td>
             <td>${data.isActive}</td>
+            <td><button class="btn btn-danger" onclick="deleteShuttle(${data.id})">Del</button></td>
           </tr>
           `;
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}
+
+function deleteShuttle(id) {
+    fetch(endPoint + 'ShuttleVehicles/' + id, {
+        method: 'DELETE'
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:', data);
+            document.getElementById("shuttle" + id).remove()
         })
         .catch((error) => {
             console.error('Error:', error);
