@@ -1,14 +1,15 @@
 // Objects
+// Abstract class
 class Vehicle {
     constructor(name, velocity) {
         this.name = name;
         this.velocity = velocity;
     }
-
+    
+    // overload
     speedUp() {
         this.velocity += 1;
     }
-
     speedUp(kmPerHour) {
         this.velocity += kmPerHour;
     }
@@ -121,6 +122,8 @@ function printManned(data) {
     });
 }
 
+
+// POST
 // Submit form Shuttle
 function postShuttle() {
     let newShuttle = new ShuttleVehicle(document.getElementById("newShuttleName").value, document.getElementById("newShuttleVelocity").value, document.getElementById("newShuttleIsActive").value);
@@ -226,6 +229,7 @@ function postManned() {
         });
 }
 
+// DELETE
 function deleteShuttle(id) {
     fetch(endPoint + 'ShuttleVehicles/' + id, {
         method: 'DELETE'
