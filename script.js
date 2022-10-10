@@ -56,5 +56,40 @@ function printInfo() {
     });
 }
 
+// Submit form Shuttle
+function postShuttle() {
+    let newShuttle = new ShuttleVehicle(document.getElementById("newShuttleName").value, document.getElementById("newShuttleVelocity").value, document.getElementById("newShuttleIsActive").value);
+    const table = document.getElementById('shuttle')
+    const data = {
+        "name": newShuttle.name,
+        "velocity": newShuttle.velocity,
+        "isActive": newShuttle.isActive
+    };
+
+    fetch(endPoint + 'ShuttleVehicles', {
+        method: 'POST',
+        headers: {
+            "Content-type": "application/json"
+        },
+        body: JSON.stringify(data),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:', data);
+            shuttles.push(data);
+            table.innerHTML = `
+            ${table.innerHTML}
+            <tr id="${"shuttle" + data.id}">
+            <th scope="row">${data.name}</th>
+            <td>${data.velocity}</td>
+            <td>${data.isActive}</td>
+          </tr>
+          `;
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}
+
 // Run app
 getShuttles()
