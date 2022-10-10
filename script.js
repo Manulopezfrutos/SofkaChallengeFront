@@ -29,3 +29,32 @@ class ShuttleVehicle extends Vehicle {
     }
 }
 
+// Variables
+const endPoint = 'https://sofka-challenge-back.herokuapp.com/';
+
+// Get data
+let getShuttles = () => fetch(endPoint + 'ShuttleVehicles')
+    .then(response => response.json())
+    .then(json => {
+        shuttles = json;
+        printInfo();
+    });
+
+
+// Print data on UI
+function printInfo() {
+    const table = document.getElementById('shuttle')
+    shuttles.forEach(vehicle => {
+        table.innerHTML = `
+          ${table.innerHTML}
+          <tr id="${"shuttle" + vehicle.id}">
+          <th scope="row">${vehicle.name}</th>
+          <td>${vehicle.velocity}</td>
+          <td>${vehicle.isActive}</td>
+        </tr>
+        `;
+    });
+}
+
+// Run app
+getShuttles()
