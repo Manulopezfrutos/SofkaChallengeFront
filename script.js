@@ -29,6 +29,33 @@ class ShuttleVehicle extends Vehicle {
     }
 }
 
+class UnmannedShip extends Vehicle {
+    constructor(name, velocity, panelsDeployed) {
+        super(name, velocity);
+        this.panelsDeployed = panelsDeployed;
+    }
+
+    togglePanelsDeployed() {
+        this.panelsDeployed = !this.panelsDeployed;
+    }
+}
+
+class MannedShip extends Vehicle {
+    constructor(name, velocity, crewPresent) {
+        super(name, velocity);
+        this.crewPresent = crewPresent;
+    }
+
+    recieveCrew() {
+        this.crewPresent += 1;
+    }
+
+    ejectCrew() {
+        this.crewPresent -= 1;
+    }
+}
+
+
 // Variables
 const endPoint = 'https://sofka-challenge-back.herokuapp.com/';
 
@@ -36,15 +63,24 @@ const endPoint = 'https://sofka-challenge-back.herokuapp.com/';
 let getShuttles = () => fetch(endPoint + 'ShuttleVehicles')
     .then(response => response.json())
     .then(json => {
-        shuttles = json;
-        printInfo();
+        printShuttle(json);
+    });
+let getUnmanned = () => fetch(endPoint + 'UnmannedShip')
+    .then(response => response.json())
+    .then(json => {
+        printUnmanned(json);
+    });
+let getManned = () => fetch(endPoint + 'MannedShip')
+    .then(response => response.json())
+    .then(json => {
+        printManned(json);
     });
 
 
 // Print data on UI
-function printInfo() {
+function printShuttle(data) {
     const table = document.getElementById('shuttle')
-    shuttles.forEach(vehicle => {
+    data.forEach(vehicle => {
         table.innerHTML = `
           ${table.innerHTML}
           <tr id="${"shuttle" + vehicle.id}">
@@ -52,6 +88,20 @@ function printInfo() {
           <td>${vehicle.velocity}</td>
           <td>${vehicle.isActive}</td>
           <td><button class="btn btn-danger" onclick="deleteShuttle(${vehicle.id})">Del</button></td>
+        </tr>
+        `;
+    });
+}
+function printUnmanned(data) {
+    const table = document.getElementById('unmanned')
+    data.forEach(vehicle => {
+        table.innerHTML = `
+          ${table.innerHTML}
+          <tr id="${"unmanned" + vehicle.id}">
+          <th scope="row">${vehicle.name}</th>
+          <td>${vehicle.velocity}</td>
+          <td>${vehicle.panelsDeployed}</td>
+          <td><button class="btn btn-danger" onclick="deleteUnmanned(${vehicle.id})">Del</button></td>
         </tr>
         `;
     });
@@ -77,7 +127,6 @@ function postShuttle() {
         .then((response) => response.json())
         .then((data) => {
             console.log('Success:', data);
-            shuttles.push(data);
             table.innerHTML = `
             ${table.innerHTML}
             <tr id="${"shuttle" + data.id}">
@@ -85,6 +134,41 @@ function postShuttle() {
             <td>${data.velocity}</td>
             <td>${data.isActive}</td>
             <td><button class="btn btn-danger" onclick="deleteShuttle(${data.id})">Del</button></td>
+          </tr>
+          `;
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}
+
+// Submit form UnmannedShip
+function postUnmanned() {
+    let newVehicle = new UnmannedShip(document.getElementById("newUnmannedName").value, document.getElementById("newUnmannedVelocity").value, document.getElementById("newUnmannedPanelsDeployed").value);
+    const table = document.getElementById('unmanned')
+    const data = {
+        "name": newVehicle.name,
+        "velocity": newVehicle.velocity,
+        "panelsDeployed": newVehicle.panelsDeployed
+    };
+
+    fetch(endPoint + 'UnmannedShip', {
+        method: 'POST',
+        headers: {
+            "Content-type": "application/json"
+        },
+        body: JSON.stringify(data),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:', data);
+            table.innerHTML = `
+            ${table.innerHTML}
+            <tr id="${"unmanned" + data.id}">
+            <th scope="row">${data.name}</th>
+            <td>${data.velocity}</td>
+            <td>${data.panelsDeployed}</td>
+            <td><button class="btn btn-danger" onclick="deleteUnmanned(${data.id})">Del</button></td>
           </tr>
           `;
         })
@@ -107,5 +191,20 @@ function deleteShuttle(id) {
         });
 }
 
+function deleteUnmanned(id) {
+    fetch(endPoint + 'UnmannedShip/' + id, {
+        method: 'DELETE'
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:', data);
+            document.getElementById("unmanned" + id).remove()
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}
+
 // Run app
 getShuttles()
+getUnmanned()
