@@ -70,7 +70,7 @@ let getUnmanned = () => fetch(endPoint + 'UnmannedShip')
     .then(json => {
         printUnmanned(json);
     });
-let getManned = () => fetch(endPoint + 'MannedShip')
+let getManned = () => fetch(endPoint + 'MannedShips')
     .then(response => response.json())
     .then(json => {
         printManned(json);
@@ -102,6 +102,20 @@ function printUnmanned(data) {
           <td>${vehicle.velocity}</td>
           <td>${vehicle.panelsDeployed}</td>
           <td><button class="btn btn-danger" onclick="deleteUnmanned(${vehicle.id})">Del</button></td>
+        </tr>
+        `;
+    });
+}
+function printManned(data) {
+    const table = document.getElementById('manned')
+    data.forEach(vehicle => {
+        table.innerHTML = `
+          ${table.innerHTML}
+          <tr id="${"manned" + vehicle.id}">
+          <th scope="row">${vehicle.name}</th>
+          <td>${vehicle.velocity}</td>
+          <td>${vehicle.panelsDeployed}</td>
+          <td><button class="btn btn-danger" onclick="deleteManned(${vehicle.id})">Del</button></td>
         </tr>
         `;
     });
@@ -177,6 +191,41 @@ function postUnmanned() {
         });
 }
 
+// Submit form MannedShip
+function postManned() {
+    let newVehicle = new MannedShip(document.getElementById("newMannedName").value, document.getElementById("newMannedVelocity").value, document.getElementById("newMannedCrewPresent").value);
+    const table = document.getElementById('manned')
+    const data = {
+        "name": newVehicle.name,
+        "velocity": newVehicle.velocity,
+        "crewPresent": newVehicle.crewPresent
+    };
+
+    fetch(endPoint + 'MannedShips', {
+        method: 'POST',
+        headers: {
+            "Content-type": "application/json"
+        },
+        body: JSON.stringify(data),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:', data);
+            table.innerHTML = `
+            ${table.innerHTML}
+            <tr id="${"manned" + data.id}">
+            <th scope="row">${data.name}</th>
+            <td>${data.velocity}</td>
+            <td>${data.crewPresent}</td>
+            <td><button class="btn btn-danger" onclick="deleteManned(${data.id})">Del</button></td>
+          </tr>
+          `;
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}
+
 function deleteShuttle(id) {
     fetch(endPoint + 'ShuttleVehicles/' + id, {
         method: 'DELETE'
@@ -205,6 +254,21 @@ function deleteUnmanned(id) {
         });
 }
 
+function deleteManned(id) {
+    fetch(endPoint + 'MannedShips/' + id, {
+        method: 'DELETE'
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Success:', data);
+            document.getElementById("manned" + id).remove()
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+}
+
 // Run app
 getShuttles()
 getUnmanned()
+getManned()
