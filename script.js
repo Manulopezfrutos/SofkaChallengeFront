@@ -5,7 +5,7 @@ class Vehicle {
         this.name = name;
         this.velocity = velocity;
     }
-    
+
     // overload
     speedUp() {
         this.velocity += 1;
@@ -59,64 +59,41 @@ class MannedShip extends Vehicle {
 
 // Variables
 const endPoint = 'https://sofka-challenge-back.herokuapp.com/';
+const shuttleTable = document.getElementById('shuttle');
+const unmannedTable = document.getElementById('unmanned');
+const mannedTable = document.getElementById('manned');
 
 // Get data
 let getShuttles = () => fetch(endPoint + 'ShuttleVehicles')
     .then(response => response.json())
     .then(json => {
-        printShuttle(json);
+        printVehicle(json, shuttleTable, "shuttle");
     });
 let getUnmanned = () => fetch(endPoint + 'UnmannedShip')
     .then(response => response.json())
     .then(json => {
-        printUnmanned(json);
+        printVehicle(json, unmannedTable, "unmanned");
     });
 let getManned = () => fetch(endPoint + 'MannedShips')
     .then(response => response.json())
     .then(json => {
-        printManned(json);
+        printVehicle(json, mannedTable, "manned");
     });
 
 
 // Print data on UI
-function printShuttle(data) {
-    const table = document.getElementById('shuttle')
+function printVehicle(data, table, vehicleType) {
     data.forEach(vehicle => {
         table.innerHTML = `
           ${table.innerHTML}
-          <tr id="${"shuttle" + vehicle.id}">
+          <tr id="${vehicleType + vehicle.id}">
           <th scope="row">${vehicle.name}</th>
           <td>${vehicle.velocity}</td>
-          <td>${vehicle.isActive}</td>
-          <td><button class="btn btn-danger" onclick="deleteShuttle(${vehicle.id})">Del</button></td>
-        </tr>
-        `;
-    });
-}
-function printUnmanned(data) {
-    const table = document.getElementById('unmanned')
-    data.forEach(vehicle => {
-        table.innerHTML = `
-          ${table.innerHTML}
-          <tr id="${"unmanned" + vehicle.id}">
-          <th scope="row">${vehicle.name}</th>
-          <td>${vehicle.velocity}</td>
-          <td>${vehicle.panelsDeployed}</td>
-          <td><button class="btn btn-danger" onclick="deleteUnmanned(${vehicle.id})">Del</button></td>
-        </tr>
-        `;
-    });
-}
-function printManned(data) {
-    const table = document.getElementById('manned')
-    data.forEach(vehicle => {
-        table.innerHTML = `
-          ${table.innerHTML}
-          <tr id="${"manned" + vehicle.id}">
-          <th scope="row">${vehicle.name}</th>
-          <td>${vehicle.velocity}</td>
-          <td>${vehicle.panelsDeployed}</td>
-          <td><button class="btn btn-danger" onclick="deleteManned(${vehicle.id})">Del</button></td>
+          <td>${vehicleType == "shuttle"
+                ? vehicle.isActive : vehicleType == "unmanned"
+                    ? vehicle.panelsDeployed : vehicle.crewPresent
+            }</td>
+          <td><button class="btn btn-danger" onclick="deleteVehicle(${"'"+ vehicleType +"'"}, ${vehicle.id})">Del</button></td>
         </tr>
         `;
     });
@@ -127,7 +104,6 @@ function printManned(data) {
 // Submit form Shuttle
 function postShuttle() {
     let newShuttle = new ShuttleVehicle(document.getElementById("newShuttleName").value, document.getElementById("newShuttleVelocity").value, document.getElementById("newShuttleIsActive").value);
-    const table = document.getElementById('shuttle')
     const data = {
         "name": newShuttle.name,
         "velocity": newShuttle.velocity,
@@ -143,16 +119,7 @@ function postShuttle() {
     })
         .then((response) => response.json())
         .then((data) => {
-            console.log('Success:', data);
-            table.innerHTML = `
-            ${table.innerHTML}
-            <tr id="${"shuttle" + data.id}">
-            <th scope="row">${data.name}</th>
-            <td>${data.velocity}</td>
-            <td>${data.isActive}</td>
-            <td><button class="btn btn-danger" onclick="deleteShuttle(${data.id})">Del</button></td>
-          </tr>
-          `;
+            printVehicle([data], shuttleTable, "shuttle");
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -162,7 +129,6 @@ function postShuttle() {
 // Submit form UnmannedShip
 function postUnmanned() {
     let newVehicle = new UnmannedShip(document.getElementById("newUnmannedName").value, document.getElementById("newUnmannedVelocity").value, document.getElementById("newUnmannedPanelsDeployed").value);
-    const table = document.getElementById('unmanned')
     const data = {
         "name": newVehicle.name,
         "velocity": newVehicle.velocity,
@@ -179,15 +145,7 @@ function postUnmanned() {
         .then((response) => response.json())
         .then((data) => {
             console.log('Success:', data);
-            table.innerHTML = `
-            ${table.innerHTML}
-            <tr id="${"unmanned" + data.id}">
-            <th scope="row">${data.name}</th>
-            <td>${data.velocity}</td>
-            <td>${data.panelsDeployed}</td>
-            <td><button class="btn btn-danger" onclick="deleteUnmanned(${data.id})">Del</button></td>
-          </tr>
-          `;
+            printVehicle([data], unmannedTable, "unmanned");
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -197,7 +155,6 @@ function postUnmanned() {
 // Submit form MannedShip
 function postManned() {
     let newVehicle = new MannedShip(document.getElementById("newMannedName").value, document.getElementById("newMannedVelocity").value, document.getElementById("newMannedCrewPresent").value);
-    const table = document.getElementById('manned')
     const data = {
         "name": newVehicle.name,
         "velocity": newVehicle.velocity,
@@ -214,15 +171,7 @@ function postManned() {
         .then((response) => response.json())
         .then((data) => {
             console.log('Success:', data);
-            table.innerHTML = `
-            ${table.innerHTML}
-            <tr id="${"manned" + data.id}">
-            <th scope="row">${data.name}</th>
-            <td>${data.velocity}</td>
-            <td>${data.crewPresent}</td>
-            <td><button class="btn btn-danger" onclick="deleteManned(${data.id})">Del</button></td>
-          </tr>
-          `;
+            printVehicle([data], mannedTable, "manned");
         })
         .catch((error) => {
             console.error('Error:', error);
@@ -230,47 +179,23 @@ function postManned() {
 }
 
 // DELETE
-function deleteShuttle(id) {
-    fetch(endPoint + 'ShuttleVehicles/' + id, {
+function deleteVehicle(vehicleType, id) {
+    fetch(endPoint + (vehicleType == "shuttle"
+    ? 'ShuttleVehicles/' : vehicleType == "unmanned"
+    ? 'UnmannedShip/' : 'MannedShips/')
+    + id, {
         method: 'DELETE'
     })
         .then((response) => response.json())
-        .then((data) => {
-            console.log('Success:', data);
-            document.getElementById("shuttle" + id).remove()
+        .then(() => {
+            console.log('Success');
+            document.getElementById(vehicleType + id).remove();
         })
         .catch((error) => {
             console.error('Error:', error);
         });
 }
 
-function deleteUnmanned(id) {
-    fetch(endPoint + 'UnmannedShip/' + id, {
-        method: 'DELETE'
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            console.log('Success:', data);
-            document.getElementById("unmanned" + id).remove()
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-}
-
-function deleteManned(id) {
-    fetch(endPoint + 'MannedShips/' + id, {
-        method: 'DELETE'
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            console.log('Success:', data);
-            document.getElementById("manned" + id).remove()
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-}
 
 // Run app
 getShuttles()
